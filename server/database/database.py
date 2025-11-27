@@ -31,6 +31,8 @@ class Database():
                     "title TEXT," +
                     "artist_id INTEGER," +
                     "genre TEXT," +
+                    "spotify_url TEXT," +
+                    "apple_url TEXT," +
                     "FOREIGN KEY (artist_id) REFERENCES artists(artist_id)," +
                     "UNIQUE(title, artist_id)" +
                     ");")

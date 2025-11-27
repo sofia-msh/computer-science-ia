@@ -1,23 +1,26 @@
-import { useEffect, useState } from "react";
-
+import React, { useEffect, useState } from "react";
+import { getArtists } from "../services/api";
 export default function Artists() {
-  const [artists, setArtists] = useState([]);
-
-  useEffect(() => {
-    fetch("http://127.0.0.1:5000/api/artists")
-      .then(res => res.json())
-      .then(data => setArtists(data))
-      .catch(err => console.error(err));
-  }, []);
-
+  const [items, setItems] = useState([]);
+  useEffect(() => { (async () => {
+    try {
+      const data = await getArtists();
+      setItems(data.items || []);
+    } catch (e) { setItems([]); }
+  })(); }, []);
   return (
-    <div className="p-10">
-      <h2 className="text-2xl font-bold mb-4">Artists</h2>
-      <ul className="list-disc pl-5">
-        {artists.map((artist) => (
-          <li key={artist.id}>{artist.name}</li>
-        ))}
-      </ul>
+    <div className="max-w-5xl mx-auto p-6">
+      <h2 className="text-2xl font-semibold mb-4">Artists</h2>
+      <div className="bg-white rounded shadow p-4">
+        <ul>
+          {items.sort((a,b)=>a.name.localeCompare(b.name)).map(it=>(
+            <li key={it.id} className="py-2 border-b last:border-b-0 flex justify-between">
+              <div>{it.name}</div>
+              {it.link && <a className="underline" href={it.link} target="_blank" rel="noreferrer">Open</a>}
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }

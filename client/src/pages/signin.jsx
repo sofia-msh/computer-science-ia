@@ -1,42 +1,34 @@
-import { useState } from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import AuthForm from "../components/authentication_form";
+import { login } from "../services/api";
 
-export default function SignIn() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+export default function SignIn({ onSignIn }) {
+  const navigate = useNavigate();
+  const [error, setError] = useState(null);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // TODO: call backend API to login/register
-    console.log("Email:", email, "Password:", password);
+  const handleLogin = async ({ username, password }) => {
+    try {
+      const data = await login(username, password);
+      if (data?.token) {
+        localStorage.setItem("token", data.token);
+        onSignIn({ username: data.username || username });
+        navigate("/");
+      } else {
+        throw new Error("No token returned");
+      }
+    } catch (e) {
+      setError("Incorrect username or password");
+    }
   };
 
   return (
-    <div className="p-10 max-w-md mx-auto bg-white shadow rounded">
-      <h2 className="text-2xl font-bold mb-4">Sign In / Register</h2>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="p-2 border rounded"
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="p-2 border rounded"
-          required
-        />
-        <button
-          type="submit"
-          className="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 transition"
-        >
-          Sign In
-        </button>
-      </form>
+    <div className="max-w-md mx-auto p-6">
+      <h2 className="text-2xl font-semibold mb-4">Sign In</h2>
+      <div className="bg-white p-6 rounded shadow">
+        <AuthForm onSubmit={handleLogin} />
+        {error && <div className="text-red-600 mt-2">{error}</div>}
+      </div>
     </div>
   );
 }

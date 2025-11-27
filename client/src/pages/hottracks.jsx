@@ -1,33 +1,25 @@
-import { useEffect, useState } from "react";
-
-export default function HotTracks() {
-  const [tracks, setTracks] = useState([]);
-
-  useEffect(() => {
-    fetch("http://127.0.0.1:5000/api/hottracks")
-      .then(res => res.json())
-      .then(data => setTracks(data))
-      .catch(err => console.error(err));
-  }, []);
-
+import React, { useEffect, useState } from "react";
+import { getHotTracks } from "../services/api";
+export default function Hottracks() {
+  const [items, setItems] = useState([]);
+  useEffect(() => { (async () => {
+    try {
+      const data = await getHotTracks();
+      setItems(data.items || []);
+    } catch (e) { setItems([]); }
+  })(); }, []);
   return (
-    <div className="p-10">
-      <h2 className="text-2xl font-bold mb-4">Hot Tracks</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {tracks.map((track) => (
-          <div key={track.id} className="p-4 bg-white shadow rounded">
-            <h3 className="font-semibold">{track.title}</h3>
-            <p className="text-gray-600">{track.artist}</p>
-            <a
-              href={track.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-500 underline mt-2 inline-block"
-            >
-              Listen
-            </a>
-          </div>
-        ))}
+    <div className="max-w-5xl mx-auto p-6">
+      <h2 className="text-2xl font-semibold mb-4">Hot tracks</h2>
+      <div className="bg-white rounded shadow p-4">
+        <ul>
+          {items.sort((a,b)=>a.name.localeCompare(b.name)).map(it=>(
+            <li key={it.id} className="py-2 border-b last:border-b-0 flex justify-between">
+              <div>{it.name}</div>
+              {it.link && <a className="underline" href={it.link} target="_blank" rel="noreferrer">Open</a>}
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );
